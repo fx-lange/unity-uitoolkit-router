@@ -8,11 +8,13 @@ namespace Plugins.Router
         public void Show(Params @params);
         public void Hide();
 
+        //created()?
         public bool BeforeRouteUpdate(Router.State to, Router.State from) 
         {
-            return true;
+            return true; //Nav Guard
         }
         
-        public void WatchParamsChange(Params to, Params from) { }
+        // public void WatchParamsChange(Params to, Params from) { }
+        //TODO could also be an router event instead of always called event method
     }
 }

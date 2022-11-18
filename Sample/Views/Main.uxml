@@ -3,6 +3,8 @@
     <ui:VisualElement style="flex-direction: row;">
         <ui:Button text="About" display-tooltip-when-elided="true" name="about" />
         <ui:Button text="Settings" display-tooltip-when-elided="true" name="settings" />
+        <ui:Button text="Admin" display-tooltip-when-elided="true" name="admin" />
+        <ui:Button text="Login" display-tooltip-when-elided="true" name="login" />
         <ui:Button text="Back" display-tooltip-when-elided="true" name="back" />
     </ui:VisualElement>
     <Plugins.Router.RouterView />

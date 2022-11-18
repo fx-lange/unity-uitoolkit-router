@@ -238,6 +238,52 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
+--- !u!1 &193489742
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 193489744}
+  - component: {fileID: 193489743}
+  m_Layer: 0
+  m_Name: Login
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &193489743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193489742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da520b6bba1314e1a953b547cedc9f90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  asset: {fileID: 9197481963319205126, guid: d8459b9a0fdee4b878e907abc47a25e6, type: 3}
+  name: LOGIN
+--- !u!4 &193489744
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193489742}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &280415026
 GameObject:
   m_ObjectHideFlags: 0
@@ -267,7 +313,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da520b6bba1314e1a953b547cedc9f90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  asset: {fileID: 9197481963319205126, guid: 59d527fe421d747e7afcd5cec01aa613, type: 3}
+  asset: {fileID: 9197481963319205126, guid: d8459b9a0fdee4b878e907abc47a25e6, type: 3}
+  name: SETTINGS
 --- !u!4 &280415028
 Transform:
   m_ObjectHideFlags: 0
@@ -348,6 +395,7 @@ MonoBehaviour:
   _uiDocument: {fileID: 835134845}
   _about: {fileID: 1919285371}
   _settings: {fileID: 280415027}
+  _login: {fileID: 193489743}
 --- !u!1 &1294656439
 GameObject:
   m_ObjectHideFlags: 0
@@ -462,6 +510,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   asset: {fileID: 9197481963319205126, guid: d8459b9a0fdee4b878e907abc47a25e6, type: 3}
+  name: ABOUT
 --- !u!4 &1919285372
 Transform:
   m_ObjectHideFlags: 0

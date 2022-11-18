@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -15,13 +16,23 @@ namespace Plugins.Router
             public Params Params;
         }
 
-        private readonly Stack<State> _history = new();
-        private RouterView _routerView;
+        public class Target
+        {
+            public string Name;
+            public Params Params;
+        }
+
+        private readonly Stack<Target> _history = new();
+        private readonly RouterView _routerView;
         private IRouteComponent _currComponent;
+        private Target _curr = null;
+        
+        private readonly Dictionary<string, Route> _routesDict = new();
 
-        private readonly Dictionary<string, Route> _routes = new();
+        public delegate Task<Target> BeforeEachDel(Target from, Target to);
+        private BeforeEachDel _beforeEach = (_, to) => Task.FromResult(to);
 
-        public void Setup(VisualElement view, List<Route> routes)
+        public Router(VisualElement view, List<Route> routes)
         {
             _routerView = view.Q<RouterView>();
             if (_routerView == null)
@@ -32,31 +43,27 @@ namespace Plugins.Router
 
             SetupRoutes(routes);
         }
+        
+        public void BeforeEachAsync(BeforeEachDel beforeEach)
+        {
+            _beforeEach = beforeEach;
+        }
+        
+        public void BeforeEach(Func<Target, Target, Target> beforeEach)
+        {
+            _beforeEach = (from, to) => Task.FromResult(beforeEach(from, to));
+        }
 
         public async Task<bool> Push(string name, Params @params = null)
         {
-            if (!_routes.ContainsKey(name))
+            var resultState = await DoRoute(name, @params);
+            if (resultState == null)
             {
                 return false;
             }
 
-            var route = _routes[name];
-            var comp = route.Component;
-            
-            //hide & show
-            Show(comp, @params);
-
-            _history.Push(new(){Route = route, Params = @params});
+            _history.Push(resultState);
             return true;
-    }
-
-        private void Show(IRouteComponent comp, Params @params)
-        {
-            _currComponent?.Hide();
-            _routerView.Clear(); //TODO? await hide before clear?
-            _routerView.Add(comp.View);
-            comp.Show(@params); //TODO? await show before return
-            _currComponent = comp;
         }
 
         public async Task<bool> Back()
@@ -68,25 +75,63 @@ namespace Plugins.Router
             
             _history.Pop();
 
-            var state = _history.Peek();
-            Show(state.Route.Component, state.Params);
-            return true;
+            var target = _history.Peek();
+            var result = await DoRoute(target.Name, target.Params);
+            return result != null;
         }
 
         private void SetupRoutes(List<Route> routes)
         {
             foreach (var route in routes)
             {
-                _routes[route.Name] = route;
+                _routesDict[route.Name] = route;
             }
+        }
+        
+        private async Task<Target> DoRoute(string name, Params @params)
+        {
+            if (!_routesDict.ContainsKey(name))
+            {
+                return null;
+            }
+
+            var route = _routesDict[name];
+            
+            var to = new Target()
+            {
+                Name = route.Name, Params = @params
+            };
+
+            var guardResult = await _beforeEach(_curr, to);
+            if (guardResult == null)
+            {
+                return null;
+            }
+
+            if (guardResult != to)
+            {
+                return await DoRoute(guardResult.Name, guardResult.Params);
+            }
+            
+            Show(route, @params);
+            return to;
+        }
+
+        private async Task Show(Route route, Params @params)
+        {
+            var comp = route.Component;
+            _currComponent?.Hide();
+            _routerView.Clear(); //TODO? await hide before clear?
+            _routerView.Add(comp.View);
+            comp.Show(@params); //TODO? await show before return
+            _currComponent = comp;
         }
     }
 
     //TODO how to handle nesting? -> inject into (named)Router Views
     //TODO reusing components instead of rendering again (especially when only switching the child)
     //TODO -- same for back?
-    //TODO navigation guard -> BeforeRouteUpdate
-    //TODO -- cancel navigation -> return false in BeforeRouteUpdate,
-    //TODO -- reroute navigation -> somehow via BeforeRouteUpdate (like to,from,next maybe)
     //TODO name vs path -> start with name only, don't see a benefit for path in non web
+    //TODO name with props instead of params?
+    //TODO beforeResolve vs beforeEach
 }
