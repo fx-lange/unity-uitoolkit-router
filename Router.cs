@@ -134,11 +134,4 @@ namespace Plugins.Router
             _currComponent = comp;
         }
     }
-
-    //TODO how to handle nesting? -> inject into (named)Router Views
-    //TODO reusing components instead of rendering again (especially when only switching the child)
-    //TODO -- same for back?
-    //TODO name vs path -> start with name only, don't see a benefit for path in non web
-    //TODO name with props instead of params?
-    //TODO beforeResolve vs beforeEach
 }

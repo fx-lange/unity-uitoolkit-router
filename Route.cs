@@ -8,7 +8,5 @@ namespace Plugins.Router
         public IRouteComponent Component;
         public Dictionary<string, IRouteComponent> Components;
         public List<Route> Children;
-        
-        //TODO Meta, per route guard
     }
 }

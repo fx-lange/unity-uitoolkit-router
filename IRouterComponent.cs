@@ -10,6 +10,7 @@ namespace Plugins.Router
         public void Hide();
 
         //created()?
+        
         // public async Task<Target> BeforeRouteEnter(Target to, Target from) 
         // {
         //     return to; 
@@ -26,8 +27,5 @@ namespace Plugins.Router
         {
             return to; 
         }
-        
-        // public void WatchParamsChange(Params to, Params from) { }
-        //TODO could also be an router event instead of always called event method
     }
 }
