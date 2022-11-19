@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine.UIElements;
 
 namespace Plugins.Router
@@ -9,9 +10,21 @@ namespace Plugins.Router
         public void Hide();
 
         //created()?
-        public bool BeforeRouteUpdate(Router.State to, Router.State from) 
+        // public async Task<Target> BeforeRouteEnter(Target to, Target from) 
+        // {
+        //     return to; 
+        // }
+        // Before would be before Show, before Initialized ->
+        // in vue: without access to this
+        
+        // public async Task<Target> BeforeRouteUpdate(Target to, Target from) 
+        // {
+        //     return to; 
+        // }
+        
+        public async Task<Target> BeforeRouteLeave(Target to, Target from) 
         {
-            return true; //Nav Guard
+            return to; 
         }
         
         // public void WatchParamsChange(Params to, Params from) { }

@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -32,7 +34,7 @@ namespace Plugins.Router.Sample
             {
                 if (to.Name == "admin")
                 {
-                    return new Router.Target()
+                    return new Target()
                     {
                         Name = "login"
                     };

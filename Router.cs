@@ -10,22 +10,10 @@ namespace Plugins.Router
 
     public class Router
     {
-        public class State
-        {
-            public Route Route;
-            public Params Params;
-        }
-
-        public class Target
-        {
-            public string Name;
-            public Params Params;
-        }
-
         private readonly Stack<Target> _history = new();
         private readonly RouterView _routerView;
         private IRouteComponent _currComponent;
-        private Target _curr = null;
+        private Target? _curr = null;
         
         private readonly Dictionary<string, Route> _routesDict = new();
 
@@ -94,25 +82,44 @@ namespace Plugins.Router
             {
                 return null;
             }
-
-            var route = _routesDict[name];
             
             var to = new Target()
             {
-                Name = route.Name, Params = @params
+                Name = name, Params = @params
             };
 
-            var guardResult = await _beforeEach(_curr, to);
-            if (guardResult == null)
+            if (_currComponent != null)
+            {
+                var leaveGuard = await _currComponent.BeforeRouteLeave(to, _curr);
+                if (leaveGuard == null)
+                {
+                    return null;
+                }
+
+                if (leaveGuard != to)
+                {
+                    //TODO potential endless loop
+                    return await DoRoute(leaveGuard.Name, leaveGuard.Params);
+                }
+            }
+
+            var globalGuard = await _beforeEach(_curr, to);
+            if (globalGuard == null)
             {
                 return null;
             }
 
-            if (guardResult != to)
+            if (globalGuard != to)
             {
-                return await DoRoute(guardResult.Name, guardResult.Params);
+                return await DoRoute(globalGuard.Name, globalGuard.Params);
+            }
+
+            if (to == _curr)
+            {
+                //reused -> beforeUpdate guard
             }
             
+            var route = _routesDict[name];
             Show(route, @params);
             return to;
         }
