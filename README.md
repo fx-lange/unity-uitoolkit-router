@@ -1,10 +1,10 @@
-#UITK-Router
+# UIToolkit-Router
 
 Router for Unity UIToolkit.
 
 ### Work in progress
 
-Development for now focused on current project needs but open for feedback.
+For now the development is focused on current project needs but open for feedback.
 Package is targeting UITK for runtime but should probably work for editor extensions as well. 
 
 ## Features
