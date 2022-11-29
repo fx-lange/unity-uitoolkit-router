@@ -1,6 +1,6 @@
-# UIToolkit-Router
+# UIToolkit Router
 
-Router for Unity UIToolkit.
+Router for Unity UI Toolkit. 
 
 ### Work in progress
 
@@ -36,3 +36,4 @@ So for everybody coming from vue.js here are some differences:
 * more guard types like beforeResolve or per route (low prio)
 * Route meta object (idea)
 * global router.watch (idea)
+* alternative to string params (idea)
