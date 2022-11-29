@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -20,7 +21,6 @@ namespace Plugins.Router
         private readonly Dictionary<string, NestedRoute> _routesDict = new();
 
         private NestedRoute _currentRoute;
-        private IRouteComponent _currComponent; //TODO redundant 
         private NavTarget _currTarget = null;
 
         public delegate Task<NavTarget> BeforeEachDel(NavTarget to, NavTarget from);
@@ -127,7 +127,7 @@ namespace Plugins.Router
             var guardResult = await CheckGuards(target, _currTarget);
             if (guardResult == null) return guardResult;
 
-            await Show(route.Route, @params);
+            await Show(route, @params);
             return guardResult;
             
             async Task<NavTarget> CheckGuards(NavTarget to, NavTarget from)
@@ -146,7 +146,7 @@ namespace Plugins.Router
                     }
                 }
                 
-                //global
+                //global beforeEach guard
                 var globalGuard = await _beforeEach(to, from);
                 if (globalGuard == null) return null;
                 if (globalGuard != to)
@@ -154,12 +154,11 @@ namespace Plugins.Router
                     return await DoRoute(globalGuard.Name, globalGuard.Params);
                 }
                 
-                //update
-                if (to == _currTarget)//TODO not just if same target but rather same components 
+                //per component beforeUpdate guard
+                if (_currentRoute == null)
                 {
-                    //reused -> beforeUpdate guard
+                    return to;
                 }
-
                 for (var i = 0; i < _currentRoute.Hierarchy.Count; i++)
                 {
                     var currRouteNode = _currentRoute.Hierarchy[i].Route;
@@ -184,15 +183,36 @@ namespace Plugins.Router
             }
         }
 
-        private async Task Show(Route route, Params @params)
+        private async Task Show(NestedRoute route, Params @params)
         {
-            //TODO nesting
-            var comp = route.Component;
-            _currComponent?.Hide();
-            _routerView.Clear(); //TODO? await hide before clear?
-            _routerView.Add(comp.View);
-            comp.Show(@params); //TODO? await show before return
-            _currComponent = comp;
+            if (_currentRoute != null)
+            {
+                for (int i = 0; i < _currentRoute.Hierarchy.Count; ++i)
+                {
+                    var currRouteNodeComponent = _currentRoute.Hierarchy[i].Route.Component;
+                    // bool stays = route.Hierarchy.Count > i && route.Hierarchy[i].Route.Component == currRouteNodeComponent;
+                    // if (!stays)
+                    // {
+                    //      hide & clear
+                    //      //TODO reverse order better?
+                    // }
+                    currRouteNodeComponent.Hide(); //TODO await?
+                    //TODO clear which routerView?
+                }
+            }
+
+            RouterView routerView = _routerView;
+            for (int i = 0; i < route.Hierarchy.Count; ++i)
+            {
+                var routeNodeComponent = route.Hierarchy[i].Route.Component;
+                var nestedView = routeNodeComponent.View;
+                routerView.Add(nestedView);
+                routeNodeComponent.Show(@params);//TODO? await show before return OR await ALL
+                
+                routerView = nestedView.Q<RouterView>();
+            }
+
+            _currentRoute = route;
         }
     }
 }
