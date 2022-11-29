@@ -10,16 +10,25 @@ namespace Plugins.Router
 
     public class Router
     {
-        private readonly Stack<NavTarget> _history = new();
         private readonly RouterView _routerView;
-        private IRouteComponent _currComponent;
-        private NavTarget _curr = null;
         
-        private readonly Dictionary<string, Route> _routesDict = new();
+        private class NestableRoute : Route
+        {
+            public Route Route;
+            public NestableRoute Parent;
+            public List<NestableRoute> Hierarchy;
+        }
+        private readonly Dictionary<string, NestableRoute> _routesDict = new();
+
+        private NestableRoute _currentRoute;
+        private IRouteComponent _currComponent;
+        private NavTarget _currTarget = null;
 
         public delegate Task<NavTarget> BeforeEachDel(NavTarget to, NavTarget from);
         private BeforeEachDel _beforeEach = (to, _) => Task.FromResult(to);
 
+        private readonly Stack<NavTarget> _history = new();
+        
         public Router(VisualElement view, List<Route> routes)
         {
             _routerView = view.Q<RouterView>();
@@ -29,14 +38,38 @@ namespace Plugins.Router
                 return;
             }
 
-            SetupRoutes(routes);
-            
-            void SetupRoutes(List<Route> routes)
+            foreach (var route in routes)
             {
-                foreach (var route in routes)
+                SetupRoute(route, null);
+            }
+
+            void SetupRoute(Route route, NestableRoute parent)
+            {
+                var nestableRoute = new NestableRoute()
                 {
-                    _routesDict[route.Name] = route;
+                    Route = route,
+                    Parent = parent
+                };
+
+                if (parent != null )
+                {
+                    nestableRoute.Hierarchy = new List<NestableRoute>(parent.Hierarchy);
                 }
+                else
+                {
+                    nestableRoute.Hierarchy = new List<NestableRoute>();
+                }
+                nestableRoute.Hierarchy.Add( nestableRoute );
+                
+                //TODO check for duplicates? different collection type?
+                _routesDict[route.Name] = nestableRoute;
+                
+                foreach (var child in route.Children)
+                {
+                    SetupRoute(child, nestableRoute);
+                }
+                
+                //TODO precache route.comp.view?
             }
         }
 
@@ -58,6 +91,8 @@ namespace Plugins.Router
                 return false;
             }
 
+            _currTarget = resultState;
+
             _history.Push(resultState);
             return true;
         }
@@ -76,7 +111,6 @@ namespace Plugins.Router
             return result != null;
         }
 
-
         
         private async Task<NavTarget> DoRoute(string name, Params @params)
         {
@@ -85,49 +119,76 @@ namespace Plugins.Router
                 return null;
             }
             
-            var to = new NavTarget()
+            var route = _routesDict[name];
+
+            var target = new NavTarget()
             {
                 Name = name, Params = @params
             };
 
-            if (_currComponent != null)
-            {
-                var leaveGuard = await _currComponent.BeforeRouteLeave(to, _curr);
-                if (leaveGuard == null)
-                {
-                    return null;
-                }
+            var guardResult = await CheckGuards(target, _currTarget);
+            if (guardResult == null) return guardResult;
 
-                if (leaveGuard != to)
-                {
-                    //TODO potential endless loop
-                    return await DoRoute(leaveGuard.Name, leaveGuard.Params);
-                }
-            }
-
-            var globalGuard = await _beforeEach(_curr, to);
-            if (globalGuard == null)
-            {
-                return null;
-            }
-
-            if (globalGuard != to)
-            {
-                return await DoRoute(globalGuard.Name, globalGuard.Params);
-            }
-
-            if (to == _curr)
-            {
-                //reused -> beforeUpdate guard
-            }
+            await Show(route, @params);
+            return guardResult;
             
-            var route = _routesDict[name];
-            Show(route, @params);
-            return to;
+            async Task<NavTarget> CheckGuards(NavTarget to, NavTarget from)
+            {
+                //leave guards
+                if (_currentRoute != null)
+                {
+                    foreach (var routeNode in _currentRoute.Hierarchy)
+                    {
+                        var leaveGuard = await routeNode.Component.BeforeRouteLeave(to, from);
+                        if (leaveGuard == null) return null;
+                        if (leaveGuard != to)
+                        {
+                            return await DoRoute(leaveGuard.Name, leaveGuard.Params);
+                        }
+                    }
+                }
+                
+                //global
+                var globalGuard = await _beforeEach(to, from);
+                if (globalGuard == null) return null;
+                if (globalGuard != to)
+                {
+                    return await DoRoute(globalGuard.Name, globalGuard.Params);
+                }
+                
+                //update
+                if (to == _currTarget)//TODO not just if same target but rather same components 
+                {
+                    //reused -> beforeUpdate guard
+                }
+
+                for (var i = 0; i < _currentRoute.Hierarchy.Count; i++)
+                {
+                    var currRouteNode = _currentRoute.Hierarchy[i];
+                    if (route.Hierarchy.Count <= i)
+                    {
+                        break;
+                    }
+
+                    var targetRouteNode = route.Hierarchy[i];
+                    if (currRouteNode.Component == targetRouteNode.Component)
+                    {
+                        var updateGuard = await currRouteNode.Component.BeforeRouteUpdate(to, from);
+                        if (updateGuard == null) return null;
+                        if (updateGuard != to)
+                        {
+                            return await DoRoute(updateGuard.Name, updateGuard.Params);
+                        }
+                    }
+                }
+
+                return to;
+            }
         }
 
         private async Task Show(Route route, Params @params)
         {
+            //TODO nesting
             var comp = route.Component;
             _currComponent?.Hide();
             _routerView.Clear(); //TODO? await hide before clear?

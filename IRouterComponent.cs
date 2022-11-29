@@ -18,10 +18,10 @@ namespace Plugins.Router
         // Before would be before Show, before Initialized ->
         // in vue: without access to this
         
-        // public async Task<Target> BeforeRouteUpdate(Target to, Target from) 
-        // {
-        //     return to; 
-        // }
+        public async Task<NavTarget> BeforeRouteUpdate(NavTarget to, NavTarget from) 
+        {
+            return to; 
+        }
         
         public async Task<NavTarget> BeforeRouteLeave(NavTarget to, NavTarget from) 
         {

@@ -37,3 +37,5 @@ So for everybody coming from vue.js here are some differences:
 * Route meta object (idea)
 * global router.watch (idea)
 * alternative to string params (idea)
+* named views (idea)
+* navigation failure (idea)
