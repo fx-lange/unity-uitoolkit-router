@@ -12,16 +12,15 @@ namespace Plugins.Router
     {
         private readonly RouterView _routerView;
         
-        private class NestableRoute : Route
+        private class NestedRoute
         {
             public Route Route;
-            public NestableRoute Parent;
-            public List<NestableRoute> Hierarchy;
+            public List<NestedRoute> Hierarchy;
         }
-        private readonly Dictionary<string, NestableRoute> _routesDict = new();
+        private readonly Dictionary<string, NestedRoute> _routesDict = new();
 
-        private NestableRoute _currentRoute;
-        private IRouteComponent _currComponent;
+        private NestedRoute _currentRoute;
+        private IRouteComponent _currComponent; //TODO redundant 
         private NavTarget _currTarget = null;
 
         public delegate Task<NavTarget> BeforeEachDel(NavTarget to, NavTarget from);
@@ -43,30 +42,29 @@ namespace Plugins.Router
                 SetupRoute(route, null);
             }
 
-            void SetupRoute(Route route, NestableRoute parent)
+            void SetupRoute(Route route, NestedRoute parent)
             {
-                var nestableRoute = new NestableRoute()
+                var nestedRoute = new NestedRoute()
                 {
-                    Route = route,
-                    Parent = parent
+                    Route = route
                 };
 
                 if (parent != null )
                 {
-                    nestableRoute.Hierarchy = new List<NestableRoute>(parent.Hierarchy);
+                    nestedRoute.Hierarchy = new List<NestedRoute>(parent.Hierarchy);
                 }
                 else
                 {
-                    nestableRoute.Hierarchy = new List<NestableRoute>();
+                    nestedRoute.Hierarchy = new List<NestedRoute>();
                 }
-                nestableRoute.Hierarchy.Add( nestableRoute );
+                nestedRoute.Hierarchy.Add( nestedRoute );
                 
                 //TODO check for duplicates? different collection type?
-                _routesDict[route.Name] = nestableRoute;
+                _routesDict[route.Name] = nestedRoute;
                 
                 foreach (var child in route.Children)
                 {
-                    SetupRoute(child, nestableRoute);
+                    SetupRoute(child, nestedRoute);
                 }
                 
                 //TODO precache route.comp.view?
@@ -129,7 +127,7 @@ namespace Plugins.Router
             var guardResult = await CheckGuards(target, _currTarget);
             if (guardResult == null) return guardResult;
 
-            await Show(route, @params);
+            await Show(route.Route, @params);
             return guardResult;
             
             async Task<NavTarget> CheckGuards(NavTarget to, NavTarget from)
@@ -139,7 +137,7 @@ namespace Plugins.Router
                 {
                     foreach (var routeNode in _currentRoute.Hierarchy)
                     {
-                        var leaveGuard = await routeNode.Component.BeforeRouteLeave(to, from);
+                        var leaveGuard = await routeNode.Route.Component.BeforeRouteLeave(to, from);
                         if (leaveGuard == null) return null;
                         if (leaveGuard != to)
                         {
@@ -164,13 +162,13 @@ namespace Plugins.Router
 
                 for (var i = 0; i < _currentRoute.Hierarchy.Count; i++)
                 {
-                    var currRouteNode = _currentRoute.Hierarchy[i];
+                    var currRouteNode = _currentRoute.Hierarchy[i].Route;
                     if (route.Hierarchy.Count <= i)
                     {
                         break;
                     }
 
-                    var targetRouteNode = route.Hierarchy[i];
+                    var targetRouteNode = route.Hierarchy[i].Route;
                     if (currRouteNode.Component == targetRouteNode.Component)
                     {
                         var updateGuard = await currRouteNode.Component.BeforeRouteUpdate(to, from);
