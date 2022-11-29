@@ -23,7 +23,7 @@ namespace Plugins.Router
         //     return to; 
         // }
         
-        public async Task<Target> BeforeRouteLeave(Target to, Target from) 
+        public async Task<NavTarget> BeforeRouteLeave(NavTarget to, NavTarget from) 
         {
             return to; 
         }

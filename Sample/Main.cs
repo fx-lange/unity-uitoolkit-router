@@ -30,14 +30,11 @@ namespace Plugins.Router.Sample
                 }
             );
 
-            _router.BeforeEach((from, to) =>
+            _router.BeforeEach((to, from) =>
             {
                 if (to.Name == "admin")
                 {
-                    return new Target()
-                    {
-                        Name = "login"
-                    };
+                    return "login";
                 }
 
                 return to;

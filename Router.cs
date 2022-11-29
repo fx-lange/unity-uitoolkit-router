@@ -10,15 +10,15 @@ namespace Plugins.Router
 
     public class Router
     {
-        private readonly Stack<Target> _history = new();
+        private readonly Stack<NavTarget> _history = new();
         private readonly RouterView _routerView;
         private IRouteComponent _currComponent;
-        private Target? _curr = null;
+        private NavTarget _curr = null;
         
         private readonly Dictionary<string, Route> _routesDict = new();
 
-        public delegate Task<Target> BeforeEachDel(Target from, Target to);
-        private BeforeEachDel _beforeEach = (_, to) => Task.FromResult(to);
+        public delegate Task<NavTarget> BeforeEachDel(NavTarget to, NavTarget from);
+        private BeforeEachDel _beforeEach = (to, _) => Task.FromResult(to);
 
         public Router(VisualElement view, List<Route> routes)
         {
@@ -30,14 +30,22 @@ namespace Plugins.Router
             }
 
             SetupRoutes(routes);
+            
+            void SetupRoutes(List<Route> routes)
+            {
+                foreach (var route in routes)
+                {
+                    _routesDict[route.Name] = route;
+                }
+            }
         }
-        
+
         public void BeforeEachAsync(BeforeEachDel beforeEach)
         {
             _beforeEach = beforeEach;
         }
         
-        public void BeforeEach(Func<Target, Target, Target> beforeEach)
+        public void BeforeEach(Func<NavTarget, NavTarget, NavTarget> beforeEach)
         {
             _beforeEach = (from, to) => Task.FromResult(beforeEach(from, to));
         }
@@ -68,22 +76,16 @@ namespace Plugins.Router
             return result != null;
         }
 
-        private void SetupRoutes(List<Route> routes)
-        {
-            foreach (var route in routes)
-            {
-                _routesDict[route.Name] = route;
-            }
-        }
+
         
-        private async Task<Target> DoRoute(string name, Params @params)
+        private async Task<NavTarget> DoRoute(string name, Params @params)
         {
             if (!_routesDict.ContainsKey(name))
             {
                 return null;
             }
             
-            var to = new Target()
+            var to = new NavTarget()
             {
                 Name = name, Params = @params
             };
