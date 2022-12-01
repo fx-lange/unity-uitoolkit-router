@@ -10,8 +10,8 @@ Package is targeting UITK for runtime but should probably work for editor extens
 ## Features
 
 * named routes
+* nested routing
 * navigation guards
-* no nested routes yet
 
 ## Vue Router Inspiration
 
@@ -29,16 +29,15 @@ So for everybody coming from vue.js here are some differences:
 
 ## Todo / Ideas
 
-* nesting (crucial)
 * global router access (planned)
 * more per component nav guards (planned)
-* generic router for extensibility (idea)
 * reusing loaded components (planned)
-* more guard types like beforeResolve or per route (low prio)
+* generic router for extensibility (idea)
 * Route meta object (idea)
 * global router.watch (idea)
 * alternative to string params (idea)
 * named views (idea)
 * navigation failure (idea)
 * configure routes via ScriptableObject (idea)
+* more guard types like beforeResolve or per route (low prio)
 * async exception handling (issue)
