@@ -3,13 +3,13 @@ using UnityEngine.UIElements;
 
 namespace Plugins.Router
 {
-    public interface IRouteComponent
+    public interface IRoutable
     {
         public VisualElement View { get; }
         public void Show(Params @params);
         public void Hide();
 
-        //created()?
+        //created()? Init(params?) Init() instead of show, what is hide supposed to do actually
         
         // public async Task<Target> BeforeRouteEnter(Target to, Target from) 
         // {
