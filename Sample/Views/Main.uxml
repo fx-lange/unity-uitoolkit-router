@@ -10,5 +10,5 @@
         <ui:Button text="User Posts" display-tooltip-when-elided="true" name="user-posts" />
         <ui:Button text="Back" display-tooltip-when-elided="true" name="back" />
     </ui:VisualElement>
-    <Plugins.Router.RouterView />
+    <UITK.Router.RouterView />
 </ui:UXML>
