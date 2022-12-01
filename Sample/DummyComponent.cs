@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace Plugins.Router.Sample
 {
-    public class DummyComponent : MonoBehaviour, IRouteComponent
+    public class DummyComponent : MonoBehaviour, IRoutable
     {
         public VisualTreeAsset asset;
         public string name;
@@ -13,12 +13,12 @@ namespace Plugins.Router.Sample
 
         public void OnEnable()
         {
-            _view = asset.Instantiate();
-            _view.Q<Label>().text = name;
         }
 
         public void Show(Params @params)
         {
+            _view = asset.Instantiate();
+            _view.Q<Label>().text = name;
         }
 
         public void Hide()

@@ -22,7 +22,7 @@ So for everybody coming from vue.js here are some differences:
 
 * obviously c# and not js and all the good and bad which comes with it
 * only the vue router, not the framework, so no $watch for example
-* purely named routes, no path routing
+* only named routes, no path routing
 * no integrated transitions
 * no \<router link> support (yet) 
 * not all nav guard types
@@ -30,6 +30,7 @@ So for everybody coming from vue.js here are some differences:
 ## Todo / Ideas
 
 * nesting (crucial)
+* global router access (planned)
 * more per component nav guards (planned)
 * generic router for extensibility (idea)
 * reusing loaded components (planned)
@@ -39,3 +40,5 @@ So for everybody coming from vue.js here are some differences:
 * alternative to string params (idea)
 * named views (idea)
 * navigation failure (idea)
+* configure routes via ScriptableObject (idea)
+* async exception handling (issue)

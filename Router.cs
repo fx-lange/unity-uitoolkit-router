@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -33,7 +32,7 @@ namespace Plugins.Router
             _routerView = view.Q<RouterView>();
             if (_routerView == null)
             {
-                Debug.LogWarning("No RouterView found");
+                Debug.LogWarning("View without RouterView");
                 return;
             }
 
@@ -61,13 +60,13 @@ namespace Plugins.Router
                 
                 //TODO check for duplicates? different collection type?
                 _routesDict[route.Name] = nestedRoute;
-                
+                //TODO precache route.comp.view?
+
+                if (route.Children == null) return;
                 foreach (var child in route.Children)
                 {
                     SetupRoute(child, nestedRoute);
                 }
-                
-                //TODO precache route.comp.view?
             }
         }
 
@@ -83,15 +82,17 @@ namespace Plugins.Router
 
         public async Task<bool> Push(string name, Params @params = null)
         {
-            var resultState = await DoRoute(name, @params);
-            if (resultState == null)
+            var target = await DoRoute(name, @params);
+            if (target == null)
             {
                 return false;
             }
 
-            _currTarget = resultState;
-
-            _history.Push(resultState);
+            var nestedRoute = _routesDict[target.Name];
+            await Show(nestedRoute, @params);
+            
+            _currTarget = target;
+            _history.Push(target);
             return true;
         }
 
@@ -106,7 +107,11 @@ namespace Plugins.Router
 
             var target = _history.Peek();
             var result = await DoRoute(target.Name, target.Params);
-            return result != null;
+            if (result == null) return false;
+
+            var route = _routesDict[target.Name];
+            await Show(route, target.Params);
+            return true;
         }
 
         
@@ -114,20 +119,20 @@ namespace Plugins.Router
         {
             if (!_routesDict.ContainsKey(name))
             {
+                Debug.LogWarning($"Route {name} not found");
                 return null;
             }
             
-            var route = _routesDict[name];
-
+            var targetRoute = _routesDict[name];
             var target = new NavTarget()
             {
-                Name = name, Params = @params
+                Name = name, 
+                Params = @params,
             };
 
             var guardResult = await CheckGuards(target, _currTarget);
-            if (guardResult == null) return guardResult;
-
-            await Show(route, @params);
+            if (guardResult == null) return null;
+            
             return guardResult;
             
             async Task<NavTarget> CheckGuards(NavTarget to, NavTarget from)
@@ -162,12 +167,12 @@ namespace Plugins.Router
                 for (var i = 0; i < _currentRoute.Hierarchy.Count; i++)
                 {
                     var currRouteNode = _currentRoute.Hierarchy[i].Route;
-                    if (route.Hierarchy.Count <= i)
+                    if (targetRoute.Hierarchy.Count <= i)
                     {
                         break;
                     }
 
-                    var targetRouteNode = route.Hierarchy[i].Route;
+                    var targetRouteNode = targetRoute.Hierarchy[i].Route;
                     if (currRouteNode.Component == targetRouteNode.Component)
                     {
                         var updateGuard = await currRouteNode.Component.BeforeRouteUpdate(to, from);
@@ -183,7 +188,7 @@ namespace Plugins.Router
             }
         }
 
-        private async Task Show(NestedRoute route, Params @params)
+        private async Task<bool> Show(NestedRoute nestedRoute, Params @params)
         {
             if (_currentRoute != null)
             {
@@ -196,23 +201,37 @@ namespace Plugins.Router
                     //      hide & clear
                     //      //TODO reverse order better?
                     // }
-                    currRouteNodeComponent.Hide(); //TODO await?
+                    currRouteNodeComponent.Hide(); //TODO await? OR await ALL
                     //TODO clear which routerView?
                 }
             }
 
             RouterView routerView = _routerView;
-            for (int i = 0; i < route.Hierarchy.Count; ++i)
+            for (int i = 0; i < nestedRoute.Hierarchy.Count; ++i)
             {
-                var routeNodeComponent = route.Hierarchy[i].Route.Component;
+                if (routerView == null)
+                {
+                    Debug.LogWarning("Missing nested RouterView");
+                    break;
+                }
+
+                var route = nestedRoute.Hierarchy[i].Route;
+                var routeNodeComponent = route.Component;
+                if (routeNodeComponent == null)
+                {
+                    Debug.LogWarning($"{route.Name} without Component");
+                    return false;
+                }
+                routerView.Clear();
+                routeNodeComponent.Show(@params);//TODO? await show before return OR await ALL
                 var nestedView = routeNodeComponent.View;
                 routerView.Add(nestedView);
-                routeNodeComponent.Show(@params);//TODO? await show before return OR await ALL
                 
                 routerView = nestedView.Q<RouterView>();
             }
 
-            _currentRoute = route;
+            _currentRoute = nestedRoute;
+            return true;
         }
     }
 }

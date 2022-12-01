@@ -13,6 +13,10 @@ namespace Plugins.Router.Sample
         [SerializeField] private DummyComponent _about;
         [SerializeField] private DummyComponent _settings;
         [SerializeField] private DummyComponent _login;
+        [Space] 
+        [SerializeField] private DummyComponent _user;
+        [SerializeField] private DummyComponent _userProfile;
+        [SerializeField] private DummyComponent _userPosts;
         
         private Router _router;
 
@@ -26,7 +30,17 @@ namespace Plugins.Router.Sample
                     new() { Name = "about", Component = _about },
                     new() { Name = "settings", Component = _settings },
                     new() { Name = "login", Component = _login },
-                    new() { Name = "admin", Component = null }
+                    new() { Name = "admin", Component = null },
+                    new() { Name = "user", Component = _user, Children =
+                    new(){
+                        new(){
+                            Name = "user/profile", Component = _userProfile
+                        },
+                        new ()
+                        {
+                            Name = "user/posts", Component = _userPosts
+                        }
+                    }}
                 }
             );
 
@@ -40,11 +54,14 @@ namespace Plugins.Router.Sample
                 return to;
             });
 
-
             view.Q<Button>("about").clickable.clicked += () => _router.Push("about");
             view.Q<Button>("settings").clickable.clicked += () => _router.Push("settings");
             view.Q<Button>("admin").clickable.clicked += () => _router.Push("admin");
             view.Q<Button>("login").clickable.clicked += () => _router.Push("login");
+            view.Q<Button>("user").clickable.clicked += () => _router.Push("user");
+            //TODO glaobal router access to link those buttons inside a User Component
+            view.Q<Button>("user-profile").clickable.clicked += () => _router.Push("user/profile");
+            view.Q<Button>("user-posts").clickable.clicked += () => _router.Push("user/posts");
             view.Q<Button>("back").clickable.clicked += () => _router.Back();
         }
     }

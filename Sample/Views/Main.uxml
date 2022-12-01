@@ -5,6 +5,9 @@
         <ui:Button text="Settings" display-tooltip-when-elided="true" name="settings" />
         <ui:Button text="Admin" display-tooltip-when-elided="true" name="admin" />
         <ui:Button text="Login" display-tooltip-when-elided="true" name="login" />
+        <ui:Button text="User" display-tooltip-when-elided="true" name="user" />
+        <ui:Button text="User Profile" display-tooltip-when-elided="true" name="user-profile" />
+        <ui:Button text="User Posts" display-tooltip-when-elided="true" name="user-posts" />
         <ui:Button text="Back" display-tooltip-when-elided="true" name="back" />
     </ui:VisualElement>
     <Plugins.Router.RouterView />
