@@ -1,6 +1,6 @@
 using System;
 
-namespace Plugins.Router
+namespace UITK.Router
 {
     public class NavTarget : IEquatable<NavTarget>
     {

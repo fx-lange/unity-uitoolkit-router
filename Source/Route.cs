@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Plugins.Router
+namespace UITK.Router
 {
     public class Route
     {

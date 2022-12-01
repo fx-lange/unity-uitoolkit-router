@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Plugins.Router.Sample
+namespace UITK.Router.Sample
 {
     public class DummyComponent : MonoBehaviour, IRoutable
     {

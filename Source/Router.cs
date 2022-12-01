@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Plugins.Router
+namespace UITK.Router
 {
     public class Params : Dictionary<string, string> { }
 

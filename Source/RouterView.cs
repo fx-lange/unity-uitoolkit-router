@@ -1,6 +1,6 @@
 using UnityEngine.UIElements;
 
-namespace Plugins.Router
+namespace UITK.Router
 {
     public class RouterView : VisualElement
     {

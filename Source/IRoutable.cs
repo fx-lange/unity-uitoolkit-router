@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using UnityEngine.UIElements;
 
-namespace Plugins.Router
+namespace UITK.Router
 {
     public interface IRoutable
     {

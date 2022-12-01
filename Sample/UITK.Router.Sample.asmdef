@@ -1,0 +1,16 @@
+{
+    "name": "UITK.Router.Sample",
+    "rootNamespace": "UITK.Router.Sample",
+    "references": [
+        "GUID:e616d2a028f9f4421afb1188197d73b4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

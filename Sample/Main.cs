@@ -1,10 +1,8 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Plugins.Router.Sample
+namespace UITK.Router.Sample
 {
     public class Main : MonoBehaviour
     {
