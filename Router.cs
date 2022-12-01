@@ -83,7 +83,7 @@ namespace Plugins.Router
         public async Task<bool> Push(string name, Params @params = null)
         {
             var target = await DoRoute(name, @params);
-            if (target == null)
+            if (target == null || target == _currTarget)
             {
                 return false;
             }
@@ -98,11 +98,11 @@ namespace Plugins.Router
 
         public async Task<bool> Back()
         {
-            if (_history.Count <= 1)
+            if (_history.Count <= 0)
             {
                 return false;
             }
-            
+
             _history.Pop();
 
             var target = _history.Peek();
