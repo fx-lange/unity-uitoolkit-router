@@ -13,9 +13,9 @@
   },
   "samples": [
     {
-      "displayName": "Default",
+      "displayName": "UITK Router Examples",
       "description": "Routing example with placeholder views",
-      "path": "Samples/Default"
+      "path": "Samples~/"
     }
   ]
 }
