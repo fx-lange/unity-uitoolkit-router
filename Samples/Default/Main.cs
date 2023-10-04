@@ -8,13 +8,13 @@ namespace UITK.Router.Sample
     {
         [SerializeField] private UIDocument _uiDocument;
         [Space] 
-        [SerializeField] private DummyComponent _about;
-        [SerializeField] private DummyComponent _settings;
-        [SerializeField] private DummyComponent _login;
+        [SerializeField] private PlaceholderComponent _about;
+        [SerializeField] private PlaceholderComponent _settings;
+        [SerializeField] private PlaceholderComponent _login;
         [Space] 
-        [SerializeField] private DummyComponent _user;
-        [SerializeField] private DummyComponent _userProfile;
-        [SerializeField] private DummyComponent _userPosts;
+        [SerializeField] private PlaceholderComponent _user;
+        [SerializeField] private PlaceholderComponent _userProfile;
+        [SerializeField] private PlaceholderComponent _userPosts;
         
         private Router _router;
 

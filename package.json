@@ -1,14 +1,21 @@
 {
   "name": "com.fxlange.uitoolkit-router",
   "displayName": "UIToolkit Router",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Router for Unity UI Toolkit",
-  "unity": "2021.3",
+  "unity": "2012.3",
   "dependencies": {
   },
   "author": {
     "name": "Felix Lange",
     "email": "mail@felixlange.dev",
     "url": "https://felixlange.dev"
-  }
+  },
+  "samples": [
+    {
+      "displayName": "Default",
+      "description": "Routing example with placeholder views",
+      "path": "Samples/Default"
+    }
+  ]
 }

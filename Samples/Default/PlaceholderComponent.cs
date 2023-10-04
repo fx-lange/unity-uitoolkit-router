@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace UITK.Router.Sample
 {
-    public class DummyComponent : MonoBehaviour, IRoutable
+    public class PlaceholderComponent : MonoBehaviour, IRoutable
     {
         public VisualTreeAsset asset;
         public string name;
