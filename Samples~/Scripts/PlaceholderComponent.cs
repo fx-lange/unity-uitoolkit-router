@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 namespace UITK.Router.Sample
@@ -6,19 +7,16 @@ namespace UITK.Router.Sample
     public class PlaceholderComponent : MonoBehaviour, IRoutable
     {
         public VisualTreeAsset asset;
-        public string name;
+        [FormerlySerializedAs("name")] 
+        public string viewName;
         private VisualElement _view;
 
         public VisualElement View => _view;
 
-        public void OnEnable()
-        {
-        }
-
-        public void Show(Params @params)
+        public virtual void Show(Params @params)
         {
             _view = asset.Instantiate();
-            _view.Q<Label>().text = name;
+            _view.Q<Label>().text = viewName;
         }
 
         public void Hide()

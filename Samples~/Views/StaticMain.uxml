@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" MemoryProfiler="Unity.MemoryProfiler.Editor" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="PlaceholderView" src="PlaceholderView.uxml" />
+    <ui:Label text="Main" display-tooltip-when-elided="true" style="color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 20px; -unity-text-align: upper-left; margin-left: 4px;" />
+    <ui:VisualElement name="nav" style="flex-direction: row;">
+        <ui:Button text="Account" display-tooltip-when-elided="true" name="account" />
+        <ui:Button text="Users" display-tooltip-when-elided="true" name="users" />
+        <ui:Button text="Back" display-tooltip-when-elided="true" name="back" />
+    </ui:VisualElement>
+    <UITK.Router.RouterView>
+        <ui:Instance template="PlaceholderView" name="accountView" />
+        <ui:Instance template="PlaceholderView" name="usersView" />
+        <ui:Instance template="PlaceholderView" name="postsView" />
+    </UITK.Router.RouterView>
+</ui:UXML>

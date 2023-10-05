@@ -9,7 +9,7 @@ namespace UITK.Router
         public void Show(Params @params);
         public void Hide();
 
-        //created()? Init(params?) Init() instead of show, what is hide supposed to do actually
+        //created()? Init(params?) Init() instead of show
         
         // public async Task<Target> BeforeRouteEnter(Target to, Target from) 
         // {

@@ -8,9 +8,12 @@ namespace UITK.Router
 {
     public class Params : Dictionary<string, string> { }
 
-    public class Router
+    [CreateAssetMenu]
+    public class Router : ScriptableObject
     {
-        private readonly RouterView _routerView;
+        public bool HasHistory => _history.Count > 1;
+        
+        private RouterView _routerView;
         
         private class NestedRoute
         {
@@ -22,12 +25,44 @@ namespace UITK.Router
         private NestedRoute _currentRoute;
         private NavTarget _currTarget = null;
 
-        public delegate Task<NavTarget> BeforeEachDel(NavTarget to, NavTarget from);
-        private BeforeEachDel _beforeEach = (to, _) => Task.FromResult(to);
-
+        private Action<NavTarget, NavTarget> _afterEach = delegate {  };
+        private List<Func<NavTarget, NavTarget, Task<NavTarget>>> _beforeEachList = new();
+        private Dictionary<Func<NavTarget, NavTarget, NavTarget>, Func<NavTarget, NavTarget, Task<NavTarget>>> _wrappedDelegates = new();
+        
         private readonly Stack<NavTarget> _history = new();
         
-        public Router(VisualElement view, List<Route> routes)
+        public event Func<NavTarget, NavTarget, Task<NavTarget>> BeforeEachAsync
+        {
+            add => _beforeEachList.Add(value);
+            remove => _beforeEachList.Remove(value);
+        }
+        
+        public event Func<NavTarget, NavTarget, NavTarget> BeforeEach
+        {
+            add
+            {
+                Func<NavTarget,NavTarget,Task<NavTarget>> wrapped = (from, to) => Task.FromResult(value(from, to));
+                _beforeEachList.Add(wrapped);
+                _wrappedDelegates[value] = wrapped;
+            }
+            
+            remove
+            {
+                if (_wrappedDelegates.TryGetValue(value, out var wrapped))
+                {
+                    _beforeEachList.Remove(wrapped);
+                    _wrappedDelegates.Remove(value);
+                }
+            }
+        }
+        
+        public event Action<NavTarget, NavTarget> AfterEach
+        {
+            add => _afterEach += value;
+            remove => _afterEach -= value;
+        }
+        
+        public void Setup(VisualElement view, List<Route> routes)
         {
             _routerView = view.Q<RouterView>();
             if (_routerView == null)
@@ -70,18 +105,9 @@ namespace UITK.Router
             }
         }
 
-        public void BeforeEachAsync(BeforeEachDel beforeEach)
-        {
-            _beforeEach = beforeEach;
-        }
-        
-        public void BeforeEach(Func<NavTarget, NavTarget, NavTarget> beforeEach)
-        {
-            _beforeEach = (from, to) => Task.FromResult(beforeEach(from, to));
-        }
-
         public async Task<bool> Push(string name, Params @params = null)
         {
+            var from = _currTarget;
             var target = await DoRoute(name, @params);
             if (target == null || target == _currTarget)
             {
@@ -93,6 +119,8 @@ namespace UITK.Router
             
             _currTarget = target;
             _history.Push(target);
+
+            _afterEach(target, from);
             return true;
         }
 
@@ -105,12 +133,15 @@ namespace UITK.Router
 
             _history.Pop();
 
+            var from = _currTarget;
             var target = _history.Peek();
-            var result = await DoRoute(target.Name, target.Params);
-            if (result == null) return false;
+            target = await DoRoute(target.Name, target.Params);
+            if (target == null) return false;
 
             var route = _routesDict[target.Name];
             await Show(route, target.Params);
+            _currTarget = target;
+            _afterEach(target, from);
             return true;
         }
 
@@ -151,14 +182,17 @@ namespace UITK.Router
                     }
                 }
                 
-                //global beforeEach guard
-                var globalGuard = await _beforeEach(to, from);
-                if (globalGuard == null) return null;
-                if (globalGuard != to)
+                //global beforeEach guards
+                foreach (var beforeEach in _beforeEachList)
                 {
-                    return await DoRoute(globalGuard.Name, globalGuard.Params);
+                    var globalGuard = await beforeEach(to, from);
+                    if (globalGuard == null) return null;
+                    if (globalGuard != to)
+                    {
+                        return await DoRoute(globalGuard.Name, globalGuard.Params);
+                    }
                 }
-                
+
                 //per component beforeUpdate guard
                 if (_currentRoute == null)
                 {
