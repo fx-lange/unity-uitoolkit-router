@@ -16,16 +16,16 @@ namespace UITK.Router
         //     return to; 
         // }
         // Before would be before Show, before Initialized ->
-        // in vue: without access to this
+        // in vue: without access to this -> static
         
-        public async Task<NavTarget> BeforeRouteUpdate(NavTarget to, NavTarget from) 
+        public Task<NavTarget> BeforeRouteUpdate(NavTarget to, NavTarget from) 
         {
-            return to; 
+            return Task.FromResult(to); 
         }
         
-        public async Task<NavTarget> BeforeRouteLeave(NavTarget to, NavTarget from) 
+        public Task<NavTarget> BeforeRouteLeave(NavTarget to, NavTarget from) 
         {
-            return to; 
+            return Task.FromResult(to); 
         }
     }
 }
