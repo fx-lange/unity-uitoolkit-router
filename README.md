@@ -29,15 +29,14 @@ So for everybody coming from vue.js here are some differences:
 
 ## Todo / Ideas
 
-* global router access (planned)
-* more per component nav guards (planned)
-* reusing loaded components (planned)
-* generic router for extensibility (idea)
+* cancel ongoing navigation on new invoking new navigation (planned)
+* some level of transition support (planned)
 * Route meta object (idea)
+* generic router for extensibility (idea)
 * global router.watch (idea)
 * alternative to string params (idea)
 * named views (idea)
 * navigation failure (idea)
 * configure routes via ScriptableObject (idea)
-* more guard types like beforeResolve or per route (low prio)
+* per route nav guards (low prio)
 * async exception handling (issue)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -27,7 +28,7 @@ namespace UITK.Router
 
         private NestedRoute _currentRoute;
         private NavTarget _currTarget = null;
-        
+
         private readonly Stack<NavTarget> _history = new();
 
         private Action<NavTarget, NavTarget> _afterEach = delegate { };
@@ -89,9 +90,9 @@ namespace UITK.Router
             {
                 return false;
             }
-            
+
             //route confirmed (uninterruptible)
-            
+
             var nestedRoute = _routesDict[target.Name];
             Show(nestedRoute, @params);
 
@@ -120,7 +121,7 @@ namespace UITK.Router
             }
 
             //route confirmed (uninterruptible)
-            
+
             var route = _routesDict[target.Name];
             Show(route, target.Params);
             _currTarget = target;
@@ -182,29 +183,38 @@ namespace UITK.Router
                     return to;
                 }
 
-                for (var i = 0; i < _currentRoute.Hierarchy.Count; i++)
+                List<Route> toBeActivated = new();
+                foreach (var targetRouteStep in targetRoute.Hierarchy)
                 {
-                    var currRouteNode = _currentRoute.Hierarchy[i].Route;
-                    if (targetRoute.Hierarchy.Count <= i)
+                    var targetRouteNode = targetRouteStep.Route;
+                    var reuse = _currentRoute.Hierarchy.Any(currentRouteStep =>
+                        currentRouteStep.Route.Component == targetRouteNode.Component);
+
+                    if (!reuse)
                     {
-                        break;
+                        toBeActivated.Add(targetRouteNode);
+                        continue;
                     }
 
-                    var targetRouteNode = targetRoute.Hierarchy[i].Route;
-                    if (currRouteNode.Component == targetRouteNode.Component)
+                    var updateGuard = await targetRouteNode.Component.BeforeRouteUpdate(to, from);
+                    if (updateGuard == null) return null;
+                    if (updateGuard != to)
                     {
-                        var updateGuard = await currRouteNode.Component.BeforeRouteUpdate(to, from);
-                        if (updateGuard == null) return null;
-                        if (updateGuard != to)
-                        {
-                            return await DoRoute(updateGuard.Name, updateGuard.Params);
-                        }
+                        return await DoRoute(updateGuard.Name, updateGuard.Params);
                     }
                 }
-                
+
                 //per (activated) component beforeEnter guards
-                //TODO
-                
+                foreach (var routeNode in toBeActivated)
+                {
+                    var enterGuard = await routeNode.Component.BeforeRouteEnter(to, from);
+                    if (enterGuard == null) return null;
+                    if (enterGuard != to)
+                    {
+                        return await DoRoute(enterGuard.Name, enterGuard.Params);
+                    }
+                }
+
                 //global beforeResolve guards
                 foreach (var beforeResolve in _beforeResolve.Guards)
                 {
@@ -215,7 +225,7 @@ namespace UITK.Router
                         return await DoRoute(globalGuardTarget.Name, globalGuardTarget.Params);
                     }
                 }
-                
+
                 return to;
             }
         }
