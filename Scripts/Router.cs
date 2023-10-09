@@ -18,13 +18,20 @@ namespace UITK.Router
 
         private RouterView _routerView;
 
-        private class NestedRoute
+        private class NestedRoute : Route
         {
-            public Route Route;
-            public List<NestedRoute> Hierarchy;
+            public List<NestedRoute> NestingList;
+
+            public NestedRoute(Route route)
+            {
+                Name = route.Name;
+                Component = route.Component;
+                Components = route.Components;
+                Children = route.Children;
+            }
         }
 
-        private readonly Dictionary<string, NestedRoute> _routesDict = new();
+        private readonly Dictionary<string, NestedRoute> _routes = new();
 
         private NestedRoute _currentRoute;
         private NavTarget _currTarget = null;
@@ -53,29 +60,28 @@ namespace UITK.Router
                 SetupRoute(route, null);
             }
 
+            return;
+
             void SetupRoute(Route route, NestedRoute parent)
             {
-                var nestedRoute = new NestedRoute()
-                {
-                    Route = route
-                };
-
+                var nestedRoute = new NestedRoute(route);
+                
                 if (parent != null)
                 {
-                    nestedRoute.Hierarchy = new List<NestedRoute>(parent.Hierarchy);
+                    nestedRoute.NestingList = new List<NestedRoute>(parent.NestingList);
                 }
                 else
                 {
-                    nestedRoute.Hierarchy = new List<NestedRoute>();
+                    nestedRoute.NestingList = new List<NestedRoute>();
                 }
 
-                nestedRoute.Hierarchy.Add(nestedRoute);
+                nestedRoute.NestingList.Add(nestedRoute);
 
                 //TODO check for duplicates? different collection type?
-                _routesDict[route.Name] = nestedRoute;
+                _routes[nestedRoute.Name] = nestedRoute;
 
-                if (route.Children == null) return;
-                foreach (var child in route.Children)
+                if (nestedRoute.Children == null) return;
+                foreach (var child in nestedRoute.Children)
                 {
                     SetupRoute(child, nestedRoute);
                 }
@@ -84,22 +90,22 @@ namespace UITK.Router
 
         public async Task<bool> Push(string name, Params @params = null)
         {
-            var from = _currTarget;
-            var target = await DoRoute(name, @params);
-            if (target == null || target == _currTarget)
+            var fromTarget = _currTarget;
+            var toTarget = await ProcessRoute(name, @params);
+            if (toTarget == null || toTarget == _currTarget)
             {
                 return false;
             }
 
             //route confirmed (uninterruptible)
 
-            var nestedRoute = _routesDict[target.Name];
-            Show(nestedRoute, @params);
+            var nestedRoute = _routes[toTarget.Name];
+            ResolveRoute(nestedRoute, @params);
 
-            _currTarget = target;
-            _history.Push(target);
+            _currTarget = toTarget;
+            _history.Push(toTarget);
 
-            _afterEach(target, from);
+            _afterEach(toTarget, fromTarget);
             return true;
         }
 
@@ -114,7 +120,7 @@ namespace UITK.Router
 
             var from = _currTarget;
             var target = _history.Peek();
-            target = await DoRoute(target.Name, target.Params);
+            target = await ProcessRoute(target.Name, target.Params);
             if (target == null)
             {
                 return false;
@@ -122,23 +128,23 @@ namespace UITK.Router
 
             //route confirmed (uninterruptible)
 
-            var route = _routesDict[target.Name];
-            Show(route, target.Params);
+            var route = _routes[target.Name];
+            ResolveRoute(route, target.Params);
             _currTarget = target;
             _afterEach(target, from);
             return true;
         }
 
 
-        private async Task<NavTarget> DoRoute(string name, Params @params)
+        private async Task<NavTarget> ProcessRoute(string name, Params @params)
         {
-            if (!_routesDict.ContainsKey(name))
+            if (!_routes.ContainsKey(name))
             {
                 Debug.LogWarning($"Route {name} not found");
                 return null;
             }
 
-            var targetRoute = _routesDict[name];
+            var targetRoute = _routes[name];
             var target = new NavTarget()
             {
                 Name = name,
@@ -146,8 +152,6 @@ namespace UITK.Router
             };
 
             var guardResult = await CheckGuards(target, _currTarget);
-            if (guardResult == null) return null;
-
             return guardResult;
 
             async Task<NavTarget> CheckGuards(NavTarget to, NavTarget from)
@@ -155,13 +159,13 @@ namespace UITK.Router
                 //leave guards
                 if (_currentRoute != null)
                 {
-                    foreach (var routeNode in _currentRoute.Hierarchy)
+                    foreach (var routeNode in _currentRoute.NestingList)
                     {
-                        var leaveGuard = await routeNode.Route.Component.BeforeRouteLeave(to, from);
+                        var leaveGuard = await routeNode.Component.BeforeRouteLeave(to, from);
                         if (leaveGuard == null) return null;
                         if (leaveGuard != to)
                         {
-                            return await DoRoute(leaveGuard.Name, leaveGuard.Params);
+                            return await ProcessRoute(leaveGuard.Name, leaveGuard.Params);
                         }
                     }
                 }
@@ -173,7 +177,7 @@ namespace UITK.Router
                     if (globalGuardTarget == null) return null;
                     if (globalGuardTarget != to)
                     {
-                        return await DoRoute(globalGuardTarget.Name, globalGuardTarget.Params);
+                        return await ProcessRoute(globalGuardTarget.Name, globalGuardTarget.Params);
                     }
                 }
 
@@ -184,11 +188,10 @@ namespace UITK.Router
                 }
 
                 List<Route> toBeActivated = new();
-                foreach (var targetRouteStep in targetRoute.Hierarchy)
+                foreach (var targetRouteNode in targetRoute.NestingList)
                 {
-                    var targetRouteNode = targetRouteStep.Route;
-                    var reuse = _currentRoute.Hierarchy.Any(currentRouteStep =>
-                        currentRouteStep.Route.Component == targetRouteNode.Component);
+                    var reuse = _currentRoute.NestingList.Any(currentRouteStep =>
+                        currentRouteStep.Component == targetRouteNode.Component);
 
                     if (!reuse)
                     {
@@ -200,7 +203,7 @@ namespace UITK.Router
                     if (updateGuard == null) return null;
                     if (updateGuard != to)
                     {
-                        return await DoRoute(updateGuard.Name, updateGuard.Params);
+                        return await ProcessRoute(updateGuard.Name, updateGuard.Params);
                     }
                 }
 
@@ -211,7 +214,7 @@ namespace UITK.Router
                     if (enterGuard == null) return null;
                     if (enterGuard != to)
                     {
-                        return await DoRoute(enterGuard.Name, enterGuard.Params);
+                        return await ProcessRoute(enterGuard.Name, enterGuard.Params);
                     }
                 }
 
@@ -222,7 +225,7 @@ namespace UITK.Router
                     if (globalGuardTarget == null) return null;
                     if (globalGuardTarget != to)
                     {
-                        return await DoRoute(globalGuardTarget.Name, globalGuardTarget.Params);
+                        return await ProcessRoute(globalGuardTarget.Name, globalGuardTarget.Params);
                     }
                 }
 
@@ -230,26 +233,26 @@ namespace UITK.Router
             }
         }
 
-        private bool Show(NestedRoute nestedRoute, Params @params)
+        private bool ResolveRoute(NestedRoute nestedRoute, Params @params)
         {
             if (_currentRoute != null)
             {
-                for (int i = 0; i < _currentRoute.Hierarchy.Count; ++i)
+                for (int i = 0; i < _currentRoute.NestingList.Count; ++i)
                 {
-                    var currRouteNodeComponent = _currentRoute.Hierarchy[i].Route.Component;
-                    // bool stays = route.Hierarchy.Count > i && route.Hierarchy[i].Route.Component == currRouteNodeComponent;
-                    // if (!stays)
-                    // {
-                    //      hide & clear
-                    //      //TODO reverse order better?
-                    // }
-                    currRouteNodeComponent.Hide(); //TODO await? OR await ALL
-                    //TODO clear which routerView?
+                    var currRouteNodeComponent = _currentRoute.NestingList[i].Component;
+                    bool stays = nestedRoute.NestingList.Count > i && nestedRoute.NestingList[i].Component == currRouteNodeComponent;
+                    if (!stays)
+                    {
+                        currRouteNodeComponent.Deactivate();
+                        // currRouteNodeComponent.View?
+                        // //TODO await? OR await ALL
+                        //TODO clear which routerView? -> no but only needed if we want to clear/remove 
+                    }
                 }
             }
 
             RouterView routerView = _routerView;
-            for (int i = 0; i < nestedRoute.Hierarchy.Count; ++i)
+            foreach (var route in nestedRoute.NestingList)
             {
                 if (routerView == null)
                 {
@@ -257,7 +260,6 @@ namespace UITK.Router
                     break;
                 }
 
-                var route = nestedRoute.Hierarchy[i].Route;
                 var routeNodeComponent = route.Component;
                 if (routeNodeComponent == null)
                 {
@@ -265,9 +267,9 @@ namespace UITK.Router
                     return false;
                 }
 
-                routerView.Clear();
+                // routerView.Clear(); 
 
-                routeNodeComponent.Show(@params); //TODO? await show before return OR await ALL
+                routeNodeComponent.Activate(@params); //TODO? await show before return OR await ALL
                 var nestedView = routeNodeComponent.View;
                 routerView.Add(nestedView);
 
@@ -279,3 +281,17 @@ namespace UITK.Router
         }
     }
 }
+
+//next & ideas
+/*
+ * cancel nav until after beforeResolve
+ * RouteNames : SO nested inside Router
+ * RouteNames : TypedEnum (dependency)
+ * TypedEnum.ToString() as route name (combine)
+ * RouteAction abstraction uxml query+route (params how?)
+ * route guards handling modals
+ * clear() -> push() or push(clear:true) or clearpush() or up()? or replace()
+ * header via nesting or via guards?
+ * uitk performance: hide/show vs intantiate vs add/remove
+ * multitasking vs multithreading with async/await -> remove/hide on transition end
+ */

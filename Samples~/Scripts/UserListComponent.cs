@@ -22,7 +22,7 @@ namespace UITK.Router.Sample
             View.Add(new VisualElement() { name = "users" });
         }
 
-        public override void Show(Params @params)
+        public override void Activate(Params @params)
         {
             var usersView = View.Q<VisualElement>("users");
             usersView.Clear();
@@ -38,7 +38,7 @@ namespace UITK.Router.Sample
                 usersView.Add(userView);
             }
 
-            base.Show(@params);
+            base.Activate(@params);
         }
     }
 }

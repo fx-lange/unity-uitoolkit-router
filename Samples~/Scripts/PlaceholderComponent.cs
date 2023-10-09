@@ -13,13 +13,13 @@ namespace UITK.Router.Sample
 
         public VisualElement View => _view;
 
-        public virtual void Show(Params @params)
+        public virtual void Activate(Params @params)
         {
             _view = asset.Instantiate();
             _view.Q<Label>().text = viewName;
         }
 
-        public void Hide()
+        public void Deactivate()
         {
         }
     }
