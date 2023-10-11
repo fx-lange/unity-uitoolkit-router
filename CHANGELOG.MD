@@ -7,18 +7,20 @@ All notable changes to this package will be documented in this file. The format 
 ### Added
 
 * transition support
-* per component navigation beforeEnter added
-* global beforeResolve guard added
-* global afterEach hook added
+* per component navigation `IRoutable::BeforeEnter` added
+* global `Router::BeforeResolve` guard added
+* global `Router::AfterEach` hook added
 * new samples with predefined hierarchy
+* `Router.Up()` and `Router.Depth` added
 
 ### Changed
 
-* Router now implemented as ScriptableObject
+* `Router` now implemented as `ScriptableObject`
+* `Router::_history` not tracking current
 
 ### Fixed
 
-* Router.back() not updating currentRouteTarget
+* `Router::back()` not updating currentRouteTarget
 
 ## [0.1.0] - 2022-12
 

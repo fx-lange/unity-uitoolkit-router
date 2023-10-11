@@ -8,6 +8,7 @@
         <ui:Button text="Login" display-tooltip-when-elided="true" name="login" />
         <ui:Button text="User" display-tooltip-when-elided="true" name="user" />
         <ui:Button text="Back" display-tooltip-when-elided="true" name="back" />
+        <ui:Button text="Up" display-tooltip-when-elided="true" name="up" />
     </ui:VisualElement>
     <UITK.Router.RouterView />
 </ui:UXML>

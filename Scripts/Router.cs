@@ -14,13 +14,15 @@ namespace UITK.Router
     [CreateAssetMenu]
     public partial class Router : ScriptableObject
     {
-        public bool HasHistory => _history.Count > 1;
+        public bool HasHistory => _history.Count > 0;
+        public int Depth => _currentRoute!=null ? _currentRoute.NestingList.Count - 1 : 0;
         private RouterView _routerView;
 
         private class NestedRoute : Route
         {
             public List<NestedRoute> NestingList;
-
+            public NestedRoute Parent;
+            
             public NestedRoute(Route route)
             {
                 Name = route.Name;
@@ -75,7 +77,11 @@ namespace UITK.Router
                     return;
                 }
                 
-                var nestedRoute = new NestedRoute(route);
+                var nestedRoute = new NestedRoute(route)
+                {
+                    Parent = parent
+                };
+                
                 var componentView = nestedRoute.Component.View;
                 if (componentView == null)
                 {
@@ -138,7 +144,7 @@ namespace UITK.Router
             }
 
             _currTarget = toTarget;
-            _history.Push(toTarget);
+            _history.Push(fromTarget);
 
             _afterEach(toTarget, fromTarget);
             return true;
@@ -146,16 +152,51 @@ namespace UITK.Router
 
         public async Task<bool> Back()
         {
-            if (_history.Count <= 0)
+            if (_history.Count == 0)
             {
                 return false;
             }
 
-            _history.Pop();
-
             var from = _currTarget;
-            var target = _history.Peek();
+            var target = _history.Pop();
             target = await ProcessRoute(target.Name, target.Params);
+            if (target == null)
+            {
+                return false;
+            }
+
+            //route confirmed (uninterruptible)
+
+            var route = _routes[target.Name];
+            var success = await ResolveRoute(route, target.Params);
+            if (!success)
+            {
+                return false;
+            }
+
+            _currTarget = target;
+            _afterEach(target, from);
+            return true;
+        }
+        
+        public async Task<bool> Up()
+        {
+            var from = _currTarget;
+            var parentRoute = _currentRoute.Parent;
+
+            if (parentRoute == null)
+            {
+                Debug.LogWarning("Can't go up");
+                return false;
+            }
+
+            var backTarget = _history.Peek();
+            if (backTarget.Name == parentRoute.Name)
+            {
+                return await Back(); //reusing potential params
+            }
+
+            var target = await ProcessRoute(parentRoute.Name, new Params());
             if (target == null)
             {
                 return false;
