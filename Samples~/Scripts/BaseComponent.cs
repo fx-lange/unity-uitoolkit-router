@@ -9,19 +9,8 @@ namespace UITK.Router.Sample
         {
             View = parent.Q<VisualElement>(viewName);
             View.Q<Label>().text = viewName;
-            Deactivate();
         }
 
         public VisualElement View { get; private set; }
-
-        public virtual void Activate(Params @params)
-        {
-            View.style.display = DisplayStyle.Flex;
-        }
-
-        public virtual void Deactivate()
-        {
-            View.style.display = DisplayStyle.None;
-        }
     }
 }

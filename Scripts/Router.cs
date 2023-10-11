@@ -15,7 +15,6 @@ namespace UITK.Router
     public partial class Router : ScriptableObject
     {
         public bool HasHistory => _history.Count > 1;
-
         private RouterView _routerView;
 
         private class NestedRoute : Route
@@ -26,7 +25,6 @@ namespace UITK.Router
             {
                 Name = route.Name;
                 Component = route.Component;
-                Components = route.Components;
                 Children = route.Children;
             }
         }
@@ -46,8 +44,15 @@ namespace UITK.Router
             remove => _afterEach -= value;
         }
 
-        public void Setup(VisualElement view, List<Route> routes)
+        public void Setup(VisualElement view, List<Route> routes, bool useTransitions, string transitionName = "fade")
         {
+            Clear();
+            _useTransition = useTransitions;
+            if (useTransitions)
+            {
+                SetTransitionName(transitionName);
+            }
+
             _routerView = view.Q<RouterView>();
             if (_routerView == null)
             {
@@ -57,15 +62,33 @@ namespace UITK.Router
 
             foreach (var route in routes)
             {
-                SetupRoute(route, null);
+                SetupRoute(route, null, _routerView);
             }
 
             return;
 
-            void SetupRoute(Route route, NestedRoute parent)
+            void SetupRoute(Route route, NestedRoute parent, RouterView routerView)
             {
-                var nestedRoute = new NestedRoute(route);
+                if (route.Component == null)
+                {
+                    Debug.LogWarning("Route without component: Skipping");
+                    return;
+                }
                 
+                var nestedRoute = new NestedRoute(route);
+                var componentView = nestedRoute.Component.View;
+                if (componentView == null)
+                {
+                    Debug.LogError($"Component for {nestedRoute.Name} not set up properly: View is null");
+                    return;
+                }
+
+                if (!routerView.Contains(componentView))
+                {
+                    routerView.Add(componentView);
+                }
+                Hide(componentView);
+
                 if (parent != null)
                 {
                     nestedRoute.NestingList = new List<NestedRoute>(parent.NestingList);
@@ -81,9 +104,16 @@ namespace UITK.Router
                 _routes[nestedRoute.Name] = nestedRoute;
 
                 if (nestedRoute.Children == null) return;
+                var nestedRouterView = componentView.Q<RouterView>();
+                if (nestedRouterView == null)
+                {
+                    Debug.LogError($"Nesting for {nestedRoute.Name} not set up properly: Missing nested RouterView");
+                    return;
+                }
+                
                 foreach (var child in nestedRoute.Children)
                 {
-                    SetupRoute(child, nestedRoute);
+                    SetupRoute(child, nestedRoute, nestedRouterView);
                 }
             }
         }
@@ -100,7 +130,12 @@ namespace UITK.Router
             //route confirmed (uninterruptible)
 
             var nestedRoute = _routes[toTarget.Name];
-            ResolveRoute(nestedRoute, @params);
+            var success = await ResolveRoute(nestedRoute, @params);
+
+            if (!success)
+            {
+                return false;
+            }
 
             _currTarget = toTarget;
             _history.Push(toTarget);
@@ -129,12 +164,16 @@ namespace UITK.Router
             //route confirmed (uninterruptible)
 
             var route = _routes[target.Name];
-            ResolveRoute(route, target.Params);
+            var success = await ResolveRoute(route, target.Params);
+            if (!success)
+            {
+                return false;
+            }
+
             _currTarget = target;
             _afterEach(target, from);
             return true;
         }
-
 
         private async Task<NavTarget> ProcessRoute(string name, Params @params)
         {
@@ -233,51 +272,67 @@ namespace UITK.Router
             }
         }
 
-        private bool ResolveRoute(NestedRoute nestedRoute, Params @params)
+        private async Task<bool> ResolveRoute(NestedRoute nestedRoute, Params @params)
         {
+            List<Task> leaveTasks = new();
             if (_currentRoute != null)
             {
                 for (int i = 0; i < _currentRoute.NestingList.Count; ++i)
                 {
                     var currRouteNodeComponent = _currentRoute.NestingList[i].Component;
-                    bool stays = nestedRoute.NestingList.Count > i && nestedRoute.NestingList[i].Component == currRouteNodeComponent;
+                    bool stays = nestedRoute.NestingList.Count > i &&
+                                 nestedRoute.NestingList[i].Component == currRouteNodeComponent;
                     if (!stays)
                     {
-                        currRouteNodeComponent.Deactivate();
-                        // currRouteNodeComponent.View?
-                        // //TODO await? OR await ALL
-                        //TODO clear which routerView? -> no but only needed if we want to clear/remove 
+                        leaveTasks.Add(RunLeaveTransition(currRouteNodeComponent));
                     }
                 }
             }
 
+            await Task.WhenAll(leaveTasks);
+
+            List<Task> enterTasks = new();
             RouterView routerView = _routerView;
             foreach (var route in nestedRoute.NestingList)
             {
                 if (routerView == null)
                 {
-                    Debug.LogWarning("Missing nested RouterView");
+                    Debug.LogError("Missing nested RouterView");
                     break;
                 }
 
                 var routeNodeComponent = route.Component;
                 if (routeNodeComponent == null)
                 {
-                    Debug.LogWarning($"{route.Name} without Component");
+                    Debug.LogError($"{route.Name} without Component");
                     return false;
                 }
 
-                // routerView.Clear(); 
+                //don't animate/activate active components 
+                //todo use active flag?
+                if (_currentRoute == null || _currentRoute.NestingList.All(r => r.Component != routeNodeComponent))
+                {
+                   routeNodeComponent.Activate(@params);
+                   enterTasks.Add(RunEnterTransition(routeNodeComponent));
+                }
 
-                routeNodeComponent.Activate(@params); //TODO? await show before return OR await ALL
-                var nestedView = routeNodeComponent.View;
-                routerView.Add(nestedView);
-
-                routerView = nestedView.Q<RouterView>();
+                routerView = routeNodeComponent.View.Q<RouterView>();
             }
+
+            await Task.WhenAll(enterTasks);
 
             _currentRoute = nestedRoute;
             return true;
+        }
+
+        private void Clear()
+        {
+            _currentRoute = null;
+            _currTarget = null;
+            _history.Clear();
+            _routes.Clear();
+            ClearGlobalGuards();
+            _afterEach = delegate { };
         }
     }
 }
@@ -294,4 +349,5 @@ namespace UITK.Router
  * header via nesting or via guards?
  * uitk performance: hide/show vs intantiate vs add/remove
  * multitasking vs multithreading with async/await -> remove/hide on transition end
+ * dynamic vs static -> hide unhide vs add/remove
  */

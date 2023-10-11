@@ -2,7 +2,7 @@ using UnityEngine.UIElements;
 
 namespace UITK.Router.Sample
 {
-    public class PostsComponent : BaseComponent
+    public class PostsComponent : BaseComponent, IRoutable
     {
         public override void Setup(VisualElement parent, string viewName)
         {
@@ -10,13 +10,12 @@ namespace UITK.Router.Sample
             View.Add(new Label{name = "message"});
         }
 
-        public override void Activate(Params @params)
+        public void Activate(Params @params)
         {
             if (@params.ContainsKey("user"))
             {
                 View.Q<Label>("message").text = $"Posts by {@params["user"]}";
             }
-            base.Activate(@params);
         }
     }
 }

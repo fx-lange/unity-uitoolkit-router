@@ -6,7 +6,7 @@ namespace UITK.Router
     {
         public string Name;
         public IRoutable Component;
-        public Dictionary<string, IRoutable> Components;
+        // public Dictionary<string, IRoutable> Components; named views are not supported yet
         public List<Route> Children;
     }
 }

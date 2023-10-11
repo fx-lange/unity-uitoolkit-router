@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace UITK.Router.Sample
 {
-    public class UserListComponent : BaseComponent
+    public class UserListComponent : BaseComponent, IRoutable
     {
         [SerializeField] private Router _router;
 
@@ -22,7 +22,7 @@ namespace UITK.Router.Sample
             View.Add(new VisualElement() { name = "users" });
         }
 
-        public override void Activate(Params @params)
+        public void Activate(Params @params)
         {
             var usersView = View.Q<VisualElement>("users");
             usersView.Clear();
@@ -37,8 +37,6 @@ namespace UITK.Router.Sample
                 });
                 usersView.Add(userView);
             }
-
-            base.Activate(@params);
         }
     }
 }

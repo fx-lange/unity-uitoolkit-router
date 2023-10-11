@@ -4,13 +4,14 @@ using UnityEngine.UIElements;
 
 namespace UITK.Router.Sample
 {
-    public class DynamicRouting : MonoBehaviour
+    public class DynamicNavigation : MonoBehaviour
     {
         [SerializeField] private Router _router;
 
         [SerializeField] private PlaceholderComponent _about;
         [SerializeField] private PlaceholderComponent _settings;
         [SerializeField] private PlaceholderComponent _login;
+        [SerializeField] private PlaceholderComponent _admin;
         [Space] 
         [SerializeField] private PlaceholderComponent _user;
         [SerializeField] private PlaceholderComponent _userProfile;
@@ -23,6 +24,8 @@ namespace UITK.Router.Sample
         public static string Admin = "admin";
         public static string User = "user";
         public static string UserPosts = "user/posts";
+
+        public Router Router => _router;
             
         public void Init(VisualElement root)
         {
@@ -33,7 +36,7 @@ namespace UITK.Router.Sample
                     new() { Name = About, Component = _about },
                     new() { Name = Settings, Component = _settings },
                     new() { Name = Login, Component = _login },
-                    new() { Name = Admin, Component = null },
+                    new() { Name = Admin, Component = _admin },
                     new() { Name = User, Component = _user, Children =
                         new List<Route>
                         {
@@ -45,7 +48,8 @@ namespace UITK.Router.Sample
                                 Name = UserPosts, Component = _userPosts
                             }
                         }}
-                }
+                },
+                true
             );
         }
     }

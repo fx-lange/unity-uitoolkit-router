@@ -1,8 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" MemoryProfiler="Unity.MemoryProfiler.Editor" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Label text="User" display-tooltip-when-elided="true" style="color: rgb(255, 255, 255);" />
-    <ui:Button text="User Profile" display-tooltip-when-elided="true" name="user-profile" />
-    <ui:Button text="User Posts" display-tooltip-when-elided="true" name="user-posts" />
+    <ui:VisualElement style="flex-direction: row;">
+        <ui:Button text="User Profile" display-tooltip-when-elided="true" name="user-profile" />
+        <ui:Button text="User Posts" display-tooltip-when-elided="true" name="user-posts" />
+    </ui:VisualElement>
     <UITK.Router.RouterView>
-        <ui:Label text="Empty" display-tooltip-when-elided="true" />
+<!--        <ui:Label text="Empty" display-tooltip-when-elided="true" /> TODO doesn't work anymore, need default child -->
     </UITK.Router.RouterView>
 </ui:UXML>

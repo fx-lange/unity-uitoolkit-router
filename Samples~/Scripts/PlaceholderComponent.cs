@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UIElements;
@@ -13,13 +14,17 @@ namespace UITK.Router.Sample
 
         public VisualElement View => _view;
 
-        public virtual void Activate(Params @params)
+        protected virtual void OnEnable()
         {
             _view = asset.Instantiate();
             _view.Q<Label>().text = viewName;
         }
 
-        public void Deactivate()
+        public virtual void Activate(Params @params)
+        {
+        }
+
+        public virtual void Deactivate()
         {
         }
     }

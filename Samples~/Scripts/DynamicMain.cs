@@ -3,21 +3,25 @@ using UnityEngine.UIElements;
 
 namespace UITK.Router.Sample
 {
+    [DefaultExecutionOrder(500)]
     public class DynamicMain : MonoBehaviour
     {
         [SerializeField] private UIDocument _uiDocument;
-        [SerializeField] private Router _router;
-        [SerializeField] private DynamicRouting _routing;
+        [SerializeField] private DynamicNavigation _navigation;
 
+        private Router _router;
+        
         private void OnEnable()
         {
             var view = _uiDocument.rootVisualElement;
-            _routing.Init(view);
+            _navigation.Init(view);
+            
+            _router = _navigation.Router;
             _router.BeforeEach += (to, from ) =>
             {
-                if (to.Name == DynamicRouting.Admin)
+                if (to.Name == DynamicNavigation.Admin)
                 {
-                    return DynamicRouting.Login;
+                    return DynamicNavigation.Login;
                 }
 
                 return to;
@@ -25,11 +29,11 @@ namespace UITK.Router.Sample
 
             var backButton = view.Q<Button>("back");
             backButton.clickable.clicked += async () => await _router.Back();
-            view.Q<Button>("about").clickable.clicked += async () => await _router.Push(DynamicRouting.About);
-            view.Q<Button>("settings").clickable.clicked += async () => await _router.Push(DynamicRouting.Settings);
-            view.Q<Button>("admin").clickable.clicked += async () => await _router.Push(DynamicRouting.Admin);
-            view.Q<Button>("login").clickable.clicked += async () => await _router.Push(DynamicRouting.Login);
-            view.Q<Button>("user").clickable.clicked += async () => await _router.Push(DynamicRouting.User);
+            view.Q<Button>("about").clickable.clicked += async () => await _router.Push(DynamicNavigation.About);
+            view.Q<Button>("settings").clickable.clicked += async () => await _router.Push(DynamicNavigation.Settings);
+            view.Q<Button>("admin").clickable.clicked += async () => await _router.Push(DynamicNavigation.Admin);
+            view.Q<Button>("login").clickable.clicked += async () => await _router.Push(DynamicNavigation.Login);
+            view.Q<Button>("user").clickable.clicked += async () => await _router.Push(DynamicNavigation.User);
        
             backButton.SetEnabled(false);
             _router.AfterEach += (_, _) => { backButton.SetEnabled(_router.HasHistory); };

@@ -17,14 +17,14 @@ namespace UITK.Router
         {
             return Task.FromResult(to); 
         }
-        
-        public void Activate(Params @params);
+
+        public void Activate(Params @params){}
 
         public Task<NavTarget> BeforeRouteLeave(NavTarget to, NavTarget from) 
         {
             return Task.FromResult(to); 
         }
         
-        public void Deactivate();
+        public void Deactivate(){}
     }
 }

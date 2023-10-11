@@ -15,26 +15,27 @@ namespace UITK.Router.Sample
 
         private void OnEnable()
         {
-            var view = _uiDocument.rootVisualElement;
+            var root = _uiDocument.rootVisualElement;
             
-            _account.Setup(view,"accountView");
-            _users.Setup(view,"usersView");
-            _posts.Setup(view,"postsView");
+            _account.Setup(root,"accountView");
+            _users.Setup(root,"usersView");
+            _posts.Setup(root,"postsView");
             
             _router.Setup(
-                view: view,
+                view: root,
                 routes: new List<Route>
                 {
                     new() { Name = "account", Component = _account },
                     new() { Name = "users", Component = _users },
                     new() { Name = "posts", Component = _posts },
-                }
+                },
+                true
             );
             
-            view.Q<Button>("account").clickable.clicked += async () => await _router.Push("account");
-            view.Q<Button>("users").clickable.clicked += async () => await _router.Push("users");
+            root.Q<Button>("account").clickable.clicked += async () => await _router.Push("account");
+            root.Q<Button>("users").clickable.clicked += async () => await _router.Push("users");
 
-            var backButton = view.Q<Button>("back");
+            var backButton = root.Q<Button>("back");
             backButton.clickable.clicked += async () => await _router.Back();
             backButton.SetEnabled(false);
             

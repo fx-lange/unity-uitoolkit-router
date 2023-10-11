@@ -37,6 +37,12 @@ namespace UITK.Router
             remove => _beforeResolve.Before -= value;
         }
 
+        private void ClearGlobalGuards()
+        {
+            _beforeEach = new GlobalNavGuards();
+            _beforeResolve = new GlobalNavGuards();
+        }
+
         private class GlobalNavGuards
         {
             private List<NavGuardDelegateAsync> _list = new();

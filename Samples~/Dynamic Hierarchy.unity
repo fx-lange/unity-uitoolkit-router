@@ -215,6 +215,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 835134846}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &286496201
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 286496202}
+  - component: {fileID: 286496203}
+  m_Layer: 0
+  m_Name: Admin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &286496202
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 286496201}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 835134846}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &286496203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 286496201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da520b6bba1314e1a953b547cedc9f90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  asset: {fileID: 9197481963319205126, guid: d8459b9a0fdee4b878e907abc47a25e6, type: 3}
+  viewName: ADMIN
 --- !u!1 &835134844
 GameObject:
   m_ObjectHideFlags: 0
@@ -266,6 +312,7 @@ Transform:
   - {fileID: 1919285372}
   - {fileID: 280415028}
   - {fileID: 193489744}
+  - {fileID: 286496202}
   - {fileID: 1325061690}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -282,8 +329,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uiDocument: {fileID: 835134845}
-  _router: {fileID: 11400000, guid: fd228220d6b824f36bb1ec08baf72dc9, type: 2}
-  _routing: {fileID: 835134848}
+  _navigation: {fileID: 835134848}
 --- !u!114 &835134848
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -300,6 +346,7 @@ MonoBehaviour:
   _about: {fileID: 1919285371}
   _settings: {fileID: 280415027}
   _login: {fileID: 193489743}
+  _admin: {fileID: 286496203}
   _user: {fileID: 1325061691}
   _userProfile: {fileID: 888959995}
   _userPosts: {fileID: 1880072195}

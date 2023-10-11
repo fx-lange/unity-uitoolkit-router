@@ -1,4 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" MemoryProfiler="Unity.MemoryProfiler.Editor" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="../style.uss" />
     <ui:Label text="Main" display-tooltip-when-elided="true" style="color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 20px; -unity-text-align: upper-left; margin-left: 4px;" />
     <ui:VisualElement style="flex-direction: row;">
         <ui:Button text="About" display-tooltip-when-elided="true" name="about" />
