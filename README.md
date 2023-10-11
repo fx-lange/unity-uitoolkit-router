@@ -29,14 +29,13 @@ So for everybody coming from vue.js here are some differences:
 
 ## Todo / Ideas
 
-* cancel ongoing navigation on new invoking new navigation (planned)
-* some level of transition support (planned)
+* cancel ongoing navigation on new invoking new navigation (critical)
 * Route meta object (idea)
 * generic router for extensibility (idea)
 * global router.watch (idea)
 * alternative to string params (idea)
 * named views (idea)
-* navigation failure (idea)
+* navigation failure object (idea)
 * configure routes via ScriptableObject (idea)
 * per route nav guards (low prio)
 * async exception handling (issue)

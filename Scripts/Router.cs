@@ -336,18 +336,3 @@ namespace UITK.Router
         }
     }
 }
-
-//next & ideas
-/*
- * cancel nav until after beforeResolve
- * RouteNames : SO nested inside Router
- * RouteNames : TypedEnum (dependency)
- * TypedEnum.ToString() as route name (combine)
- * RouteAction abstraction uxml query+route (params how?)
- * route guards handling modals
- * clear() -> push() or push(clear:true) or clearpush() or up()? or replace()
- * header via nesting or via guards?
- * uitk performance: hide/show vs intantiate vs add/remove
- * multitasking vs multithreading with async/await -> remove/hide on transition end
- * dynamic vs static -> hide unhide vs add/remove
- */
