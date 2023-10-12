@@ -354,6 +354,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0976b93d55341e794c2fec5adfb5520, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _uxmlName: postsView
 --- !u!1 &1294656439
 GameObject:
   m_ObjectHideFlags: 0
@@ -535,6 +536,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 444f8909a9804c1c94be5485cbc5c2d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _uxmlName: accountView
   _router: {fileID: 11400000, guid: fd228220d6b824f36bb1ec08baf72dc9, type: 2}
 --- !u!1 &1933293320
 GameObject:
@@ -580,6 +582,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 684a3680f63540fd8d1c9e095e140b2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _uxmlName: usersView
   _router: {fileID: 11400000, guid: fd228220d6b824f36bb1ec08baf72dc9, type: 2}
   _users:
   - Tyler

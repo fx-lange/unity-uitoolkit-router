@@ -17,9 +17,9 @@ namespace UITK.Router.Sample
         {
             var root = _uiDocument.rootVisualElement;
             
-            _account.Setup(root,"accountView");
-            _users.Setup(root,"usersView");
-            _posts.Setup(root,"postsView");
+            _account.Initialize(root);
+            _users.Initialize(root);
+            _posts.Initialize(root);
             
             _router.Setup(
                 view: root,

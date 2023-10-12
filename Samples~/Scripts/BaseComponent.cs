@@ -5,10 +5,12 @@ namespace UITK.Router.Sample
 {
     public class BaseComponent : MonoBehaviour, IRoutable
     {
-        public virtual void Setup(VisualElement parent, string viewName)
+        [SerializeField] private string _uxmlName;
+        
+        public virtual void Initialize(VisualElement parent)
         {
-            View = parent.Q<VisualElement>(viewName);
-            View.Q<Label>().text = viewName;
+            View = parent.Q<VisualElement>(_uxmlName);
+            View.Q<Label>().text = _uxmlName;
         }
 
         public VisualElement View { get; private set; }

@@ -4,9 +4,9 @@ namespace UITK.Router.Sample
 {
     public class PostsComponent : BaseComponent, IRoutable
     {
-        public override void Setup(VisualElement parent, string viewName)
+        public override void Initialize(VisualElement parent)
         {
-            base.Setup(parent, viewName);
+            base.Initialize(parent);
             View.Add(new Label{name = "message"});
         }
 

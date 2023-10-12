@@ -16,9 +16,9 @@ namespace UITK.Router.Sample
             "Leeloo"
         };
 
-        public override void Setup(VisualElement parent, string viewName)
+        public override void Initialize(VisualElement parent)
         {
-            base.Setup(parent, viewName);
+            base.Initialize(parent);
             View.Add(new VisualElement() { name = "users" });
         }
 

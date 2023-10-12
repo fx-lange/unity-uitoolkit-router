@@ -7,9 +7,9 @@ namespace UITK.Router.Sample
     {
         [SerializeField] private Router _router;
 
-        public override void Setup(VisualElement parent, string viewName)
+        public override void Initialize(VisualElement parent)
         {
-            base.Setup(parent, viewName);
+            base.Initialize(parent);
             var element = new VisualElement();
             element.RegisterCallback<ClickEvent>(async _ =>
             {
