@@ -12,9 +12,10 @@ namespace UITK.Router.Sample
 
         public void Activate(Params @params)
         {
-            if (@params.ContainsKey("user"))
+            if (@params.TryGetValue("user", out var userObj))
             {
-                View.Q<Label>("message").text = $"Posts by {@params["user"]}";
+                var user = userObj as string;
+                View.Q<Label>("message").text = $"Posts by {user}";
             }
         }
     }

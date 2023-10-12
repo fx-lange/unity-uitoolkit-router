@@ -16,6 +16,7 @@ All notable changes to this package will be documented in this file. The format 
 ### Changed
 
 * `Router` now implemented as `ScriptableObject`
+* `Router` now using a `<string,object>` dictionary for `Params`
 * `Router::_history` not tracking current
 
 ### Fixed

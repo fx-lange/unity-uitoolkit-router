@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace UITK.Router
 {
-    public class Params : Dictionary<string, string>
+    public class Params : Dictionary<string, object>
     {
     }
 
