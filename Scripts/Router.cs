@@ -46,14 +46,9 @@ namespace UITK.Router
             remove => _afterEach -= value;
         }
 
-        public void Setup(VisualElement view, List<Route> routes, bool useTransitions, string transitionName = "fade")
+        public void Setup(VisualElement view, List<Route> routes)
         {
             Clear();
-            _useTransition = useTransitions;
-            if (useTransitions)
-            {
-                SetTransitionName(transitionName);
-            }
 
             _routerView = view.Q<RouterView>();
             if (_routerView == null)

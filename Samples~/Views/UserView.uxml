@@ -4,7 +4,5 @@
         <ui:Button text="User Profile" display-tooltip-when-elided="true" name="user-profile" />
         <ui:Button text="User Posts" display-tooltip-when-elided="true" name="user-posts" />
     </ui:VisualElement>
-    <UITK.Router.RouterView>
-<!--        <ui:Label text="Empty" display-tooltip-when-elided="true" /> TODO doesn't work anymore, need default child -->
-    </UITK.Router.RouterView>
+    <UITK.Router.RouterView use-transition="true" />
 </ui:UXML>

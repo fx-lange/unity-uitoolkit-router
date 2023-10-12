@@ -48,8 +48,7 @@ namespace UITK.Router.Sample
                                 Name = UserPosts, Component = _userPosts
                             }
                         }}
-                },
-                true
+                }
             );
         }
     }

@@ -6,7 +6,7 @@ All notable changes to this package will be documented in this file. The format 
 
 ### Added
 
-* transition support
+* transition support per `RouterView` added
 * per component navigation `IRoutable::BeforeEnter` added
 * global `Router::BeforeResolve` guard added
 * global `Router::AfterEach` hook added

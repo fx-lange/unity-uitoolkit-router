@@ -16,58 +16,60 @@ namespace UITK.Router
         private readonly string _suffixLeaveFrom = "-leave";
         private readonly string _suffixLeaveTo = "-leave-to";
 
-        private bool _useTransition;
-
-        private string _enterActiveClass;
-        private string _enterFromClass;
-        private string _enterToClass;
-        private string _leaveActiveClass;
-        private string _leaveFromClass;
-        private string _leaveToClass;
-
-        private void SetTransitionName(string transitionName)
-        {
-            _enterActiveClass = transitionName + _suffixEnterActive;
-            _enterFromClass = transitionName + _suffixEnterFrom;
-            _enterToClass = transitionName + _suffixEnterTo;
-            _leaveActiveClass = transitionName + _suffixLeaveActive;
-            _leaveFromClass = transitionName + _suffixLeaveFrom;
-            _leaveToClass = transitionName + _suffixLeaveTo;
-        }
+        //TODO cache inside RouterView
+        // private string _enterActiveClass;
+        // private string _enterFromClass;
+        // private string _enterToClass;
+        // private string _leaveActiveClass;
+        // private string _leaveFromClass;
+        // private string _leaveToClass;
+        // private void SetTransitionName(string transitionName)
+        // {
+        //     _enterActiveClass = transitionName + _suffixEnterActive;
+        //     _enterFromClass = transitionName + _suffixEnterFrom;
+        //     _enterToClass = transitionName + _suffixEnterTo;
+        //     _leaveActiveClass = transitionName + _suffixLeaveActive;
+        //     _leaveFromClass = transitionName + _suffixLeaveFrom;
+        //     _leaveToClass = transitionName + _suffixLeaveTo;
+        // }
 
         private async Task RunLeaveTransition(IRoutable component)
         {
-            var ve = component.View;
-            if (!_useTransition)
+            var componentView = component.View;
+            var parentRouterView = (RouterView)componentView.parent;
+            if (!parentRouterView.UseTransition)
             {
-                Hide(ve);
+                Hide(componentView);
                 component.Deactivate();
                 return;
             }
             
-            var finished = await ExecuteTransitionSequence(ve, _leaveFromClass, _leaveActiveClass, _leaveToClass);
+            var finished = await ExecuteTransitionSequence(componentView, 
+                parentRouterView.TransitionName + _suffixLeaveFrom,
+                parentRouterView.TransitionName + _suffixLeaveActive,
+                parentRouterView.TransitionName + _suffixLeaveTo);
             if (finished)
             {
-                Hide(ve);
+                Hide(componentView);
                 component.Deactivate();
             }
         }
 
         private async Task RunEnterTransition(IRoutable component)
         {
-            var ve = component.View;
-            UnHide(ve);
+            var componentView = component.View;
+            var parentRouterView = (RouterView)componentView.parent;
+            UnHide(componentView);
 
-            if (!_useTransition)
+            if (!parentRouterView.UseTransition)
             {
                 return;
             }
             
-            var finished = await ExecuteTransitionSequence(ve, _enterFromClass, _enterActiveClass, _enterToClass);
-            if (!finished)
-            {
-                // ve.AddToClassList("hide");
-            }
+            await ExecuteTransitionSequence(componentView, 
+                parentRouterView.TransitionName + _suffixEnterFrom,
+                parentRouterView.TransitionName + _suffixEnterActive,
+                parentRouterView.TransitionName + _suffixEnterTo);
         }
 
         private void Hide(VisualElement ve)

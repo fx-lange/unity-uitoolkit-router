@@ -7,7 +7,7 @@
         <ui:Button text="Users" display-tooltip-when-elided="true" name="users" />
         <ui:Button text="Back" display-tooltip-when-elided="true" name="back" />
     </ui:VisualElement>
-    <UITK.Router.RouterView>
+    <UITK.Router.RouterView use-transition="true">
         <ui:Instance template="PlaceholderView" name="accountView" />
         <ui:Instance template="PlaceholderView" name="usersView" />
         <ui:Instance template="PlaceholderView" name="postsView" />

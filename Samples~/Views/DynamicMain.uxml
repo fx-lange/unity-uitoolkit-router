@@ -10,5 +10,5 @@
         <ui:Button text="Back" display-tooltip-when-elided="true" name="back" />
         <ui:Button text="Up" display-tooltip-when-elided="true" name="up" />
     </ui:VisualElement>
-    <UITK.Router.RouterView />
+    <UITK.Router.RouterView use-transition="true" />
 </ui:UXML>

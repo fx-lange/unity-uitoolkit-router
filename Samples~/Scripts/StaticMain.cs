@@ -28,8 +28,7 @@ namespace UITK.Router.Sample
                     new() { Name = "account", Component = _account },
                     new() { Name = "users", Component = _users },
                     new() { Name = "posts", Component = _posts },
-                },
-                true
+                }
             );
             
             root.Q<Button>("account").clickable.clicked += async () => await _router.Push("account");
